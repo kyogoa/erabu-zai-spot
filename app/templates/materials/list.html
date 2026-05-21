@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section>
+  <h2>材を見る</h2>
+
+  {% if materials %}
+    <div class="grid">
+      {% for material in materials %}
+        <article class="card material-card">
+          {% if material.image_url %}
+            <img src="{{ material.image_url }}" alt="{{ material.title }}">
+          {% endif %}
+          <h3>{{ material.title }}</h3>
+          <p><strong>種類：</strong>{{ material.material_type }}</p>
+          <p><strong>寸法：</strong>{{ material.size }}</p>
+          <p><strong>数量：</strong>{{ material.quantity }}</p>
+          <p><strong>場所：</strong>{{ material.location }}</p>
+          <p><strong>状態：</strong>{{ material.condition }}</p>
+          <a class="button-link" href="{{ url_for('materials.detail', material_id=material.material_id) }}">詳細を見る</a>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>現在登録されている材はありません。</p>
+  {% endif %}
+</section>
+{% endblock %}

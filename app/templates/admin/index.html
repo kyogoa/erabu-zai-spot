@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section>
+  <h2>管理画面</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>材ID</th>
+        <th>名前</th>
+        <th>種類</th>
+        <th>場所</th>
+        <th>状態</th>
+        <th>更新</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for material in materials %}
+        <tr>
+          <td>{{ material.material_id }}</td>
+          <td>{{ material.title }}</td>
+          <td>{{ material.material_type }}</td>
+          <td>{{ material.location }}</td>
+          <td>{{ material.status }}</td>
+          <td>
+            <form method="post" action="{{ url_for('admin.update_status') }}">
+              <input type="hidden" name="material_id" value="{{ material.material_id }}">
+              <select name="status">
+                <option value="募集中">募集中</option>
+                <option value="交渉中">交渉中</option>
+                <option value="引取済み">引取済み</option>
+                <option value="廃棄予定">廃棄予定</option>
+              </select>
+              <button type="submit">更新</button>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

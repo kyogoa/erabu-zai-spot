@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<article class="card">
+  <h2>{{ material.title }}</h2>
+
+  {% if material.image_url %}
+    <img class="detail-image" src="{{ material.image_url }}" alt="{{ material.title }}">
+  {% endif %}
+
+  <p><strong>種類：</strong>{{ material.material_type }}</p>
+  <p><strong>説明：</strong>{{ material.description }}</p>
+  <p><strong>寸法：</strong>{{ material.size }}</p>
+  <p><strong>数量：</strong>{{ material.quantity }}</p>
+  <p><strong>状態：</strong>{{ material.condition }}</p>
+  <p><strong>保管場所：</strong>{{ material.location }}</p>
+  <p><strong>引取期限：</strong>{{ material.pickup_deadline }}</p>
+
+  <form method="post" action="{{ url_for('materials.interest') }}">
+    <input type="hidden" name="material_id" value="{{ material.material_id }}">
+    <input type="hidden" name="user_id" id="user_id">
+
+    <label>メッセージ</label>
+    <textarea name="message" rows="3" placeholder="例：この材を使ってみたいです。引取可能日を相談したいです。"></textarea>
+
+    <button type="submit">この材が欲しい</button>
+  </form>
+</article>
+
+<script src="{{ url_for('static', filename='js/liff.js') }}"></script>
+{% endblock %}

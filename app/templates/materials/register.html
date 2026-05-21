@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="card">
+  <h2>材を登録する</h2>
+
+  <form method="post" action="{{ url_for('materials.submit') }}">
+    <input type="hidden" name="user_id" id="user_id">
+    <input type="hidden" name="display_name" id="display_name">
+    <p class="hint">LINE内で開くと自動的にユーザー情報が設定されます。通常のブラウザからは匿名登録として保存されます。</p>
+
+    <label>材の名前 *</label>
+    <input type="text" name="title" required placeholder="例：解体した木材、古い建具など">
+
+    <label>材の種類 *</label>
+    <select name="material_type" required>
+      <option value="">選択してください</option>
+      <option value="木材">木材</option>
+      <option value="金属">金属</option>
+      <option value="建具">建具</option>
+      <option value="家具">家具</option>
+      <option value="石材・ブロック">石材・ブロック</option>
+      <option value="設備・配管">設備・配管</option>
+      <option value="その他">その他</option>
+    </select>
+
+    <label>説明</label>
+    <textarea name="description" rows="4" placeholder="材の特徴、使えそうな用途など"></textarea>
+
+    <label>寸法</label>
+    <input type="text" name="size" placeholder="例：長さ180cm、幅10cm程度">
+
+    <label>数量</label>
+    <input type="text" name="quantity" placeholder="例：20本、軽トラ1台分など">
+
+    <label>状態</label>
+    <select name="condition">
+      <option value="すぐ使える">すぐ使える</option>
+      <option value="少し補修すれば使える">少し補修すれば使える</option>
+      <option value="加工すれば使える">加工すれば使える</option>
+      <option value="状態確認が必要">状態確認が必要</option>
+      <option value="その他">その他</option>
+    </select>
+
+    <label>保管場所 *</label>
+    <input type="text" name="location" required placeholder="例：知名町、和泊町、現場名など">
+
+    <label>引取期限</label>
+    <input type="date" name="pickup_deadline">
+
+    <label>写真URL</label>
+    <input type="url" name="image_url" placeholder="Google Drive等の画像URL">
+
+    <button type="submit">登録する</button>
+  </form>
+</section>
+
+<script src="{{ url_for('static', filename='js/liff.js') }}"></script>
+{% endblock %}
