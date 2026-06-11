@@ -18,7 +18,7 @@ def register():
 def submit():
     form = request.form.to_dict()
 
-    required_fields = ["line_user_id", "display_name", "address", "transport_info"]
+    required_fields = ["display_name", "address", "transport_info"]
     missing = [field for field in required_fields if not form.get(field)]
 
     if missing:
