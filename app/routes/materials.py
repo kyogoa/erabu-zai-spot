@@ -27,8 +27,8 @@ def submit():
         flash("必須項目が入力されていません。")
         return redirect(url_for("materials.register"))
 
-    if not form.get("user_id"):
-        form["user_id"] = ""
+    if not form.get("line_user_id"):
+        form["line_user_id"] = ""
         form["display_name"] = ""
 
     append_material(form)
@@ -53,7 +53,7 @@ def detail(material_id):
 @materials_bp.route("/interest", methods=["POST"])
 def interest():
     material_id = request.form.get("material_id")
-    requester_user_id = request.form.get("user_id")
+    requester_line_user_id = request.form.get("line_user_id")
     message = request.form.get("message", "")
 
     material = get_material_by_id(material_id)
@@ -63,18 +63,18 @@ def interest():
     append_matching_history(
         {
             "material_id": material_id,
-            "provider_user_id": material.get("user_id", ""),
-            "requester_user_id": requester_user_id,
+            "provider_user_id": material.get("line_user_id", ""),
+            "requester_user_id": requester_line_user_id,
             "action": "欲しい",
             "message": message,
             "status": "未対応",
         }
     )
 
-    provider_user_id = material.get("user_id", "")
-    if provider_user_id:
+    provider_line_user_id = material.get("line_user_id", "")
+    if provider_line_user_id:
         send_line_message(
-            provider_user_id,
+            provider_line_user_id,
             f"【えらぶ材すぽっと】\n登録した材「{material.get('title', '')}」に欲しい通知が届きました。\nメッセージ：{message or 'なし'}",
         )
 

@@ -5,10 +5,11 @@
   <h2>ユーザー情報を登録する</h2>
 
   <form method="post" action="{{ url_for('users.submit') }}">
-    <p class="hint">投稿主もしくは需要者として、ユーザー情報を登録してください。</p>
+    <input type="hidden" name="line_user_id" id="line_user_id">
+    <p class="hint">LINE内で開くと自動的にユーザー情報が設定されます。通常のブラウザからは匿名登録として保存されます。</p>
 
     <label>名前 *</label>
-    <input type="text" name="display_name" required placeholder="例：山田太郎">
+    <input type="text" name="display_name" id="display_name" required placeholder="例：山田太郎">
 
     <label>拠点住所 *</label>
     <input type="text" name="address" required placeholder="例：知名町、和泊町、現場名など">

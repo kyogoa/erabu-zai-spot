@@ -16,10 +16,10 @@ async function initializeLiff() {
 
   const profile = await liff.getProfile();
 
-  const userIdInput = document.getElementById("user_id");
+  const lineUserIdInput = document.getElementById("line_user_id");
   const displayNameInput = document.getElementById("display_name");
 
-  if (userIdInput) userIdInput.value = profile.userId;
+  if (lineUserIdInput) lineUserIdInput.value = profile.userId;
   if (displayNameInput) displayNameInput.value = profile.displayName;
 
   await fetch("/link/liff", {
