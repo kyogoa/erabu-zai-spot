@@ -41,8 +41,16 @@ def check(line_user_id):
 @users_bp.route("/<line_user_id>", methods=["GET"])
 def detail(line_user_id):
     user = get_user_by_line_user_id(line_user_id)
+    user_exists = user is not None
+
     if not user:
-        return "指定されたユーザーが見つかりません。", 404
+        user = {
+            "line_user_id": line_user_id,
+            "display_name": "",
+            "address": "",
+            "transport_info": "",
+            "created_at": "",
+        }
 
     materials = get_materials_by_line_user_id(line_user_id)
     matching_history = get_matching_history_by_user(line_user_id)
@@ -50,6 +58,7 @@ def detail(line_user_id):
     return render_template(
         "users/detail.html",
         user=user,
+        user_exists=user_exists,
         materials=materials,
         matching_history=matching_history,
     )
@@ -66,18 +75,25 @@ def edit(line_user_id):
 @users_bp.route("/<line_user_id>/update", methods=["POST"])
 def update_profile(line_user_id):
     form = request.form.to_dict()
+    form["line_user_id"] = line_user_id
 
     required_fields = ["display_name", "address", "transport_info"]
     missing = [field for field in required_fields if not form.get(field)]
 
     if missing:
         flash("必須項目が入力されていません。")
-        return redirect(url_for("users.edit", line_user_id=line_user_id))
+        return redirect(url_for("users.detail", line_user_id=line_user_id))
 
-    result = update_user(line_user_id, form)
+    if get_user_by_line_user_id(line_user_id):
+        result = update_user(line_user_id, form)
+        flash_message = "ユーザー情報を更新しました。"
+    else:
+        result = append_user(form)
+        flash_message = "ユーザー情報を登録しました。"
+
     if result:
-        flash("ユーザー情報を更新しました。")
+        flash(flash_message)
         return redirect(url_for("users.detail", line_user_id=line_user_id))
     else:
-        flash("ユーザー情報の更新に失敗しました。")
-        return redirect(url_for("users.edit", line_user_id=line_user_id))
+        flash("ユーザー情報の保存に失敗しました。")
+        return redirect(url_for("users.detail", line_user_id=line_user_id))
