@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, jsonify, render_template, request, redirect, url_for, flash
 
 from app.services.sheets_service import (
     append_user,
@@ -30,6 +30,12 @@ def submit():
     line_user_id = append_user(form)
     flash("ユーザー情報を登録しました。")
     return redirect(url_for("users.detail", line_user_id=line_user_id))
+
+
+@users_bp.route("/check/<line_user_id>", methods=["GET"])
+def check(line_user_id):
+    user = get_user_by_line_user_id(line_user_id)
+    return jsonify({"exists": user is not None})
 
 
 @users_bp.route("/<line_user_id>", methods=["GET"])

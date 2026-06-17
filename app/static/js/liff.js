@@ -57,6 +57,18 @@ async function initializeLiff() {
         pictureUrl: profile.pictureUrl || "",
       }),
     });
+
+    const checkResponse = await fetch(
+      "/users/check/" + encodeURIComponent(profile.userId)
+    );
+    if (checkResponse.ok) {
+      const checkData = await checkResponse.json();
+      if (checkData.exists) {
+        window.location.replace("/users/" + encodeURIComponent(profile.userId));
+        return;
+      }
+    }
+
     console.log("LIFF link endpoint called successfully.");
     await logToServer("LIFF link endpoint called successfully. userId=" + profile.userId);
   } catch (error) {
