@@ -1,5 +1,5 @@
 async function initializeLiff() {
-  const liffId = "{{ LIFF_ID }}";
+  const liffId = window.LIFF_ID || "";
   console.log("LIFF initialization started. LIFF ID:", liffId);
 
   // Flaskテンプレート外で使う場合に備えて、LIFF ID未設定でもフォーム確認は可能にする

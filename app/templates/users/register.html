@@ -21,5 +21,8 @@
   </form>
 </section>
 
+<script>
+  window.LIFF_ID = {{ LIFF_ID|tojson }};
+</script>
 <script src="{{ url_for('static', filename='js/liff.js') }}"></script>
 {% endblock %}
