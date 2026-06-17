@@ -9,6 +9,7 @@ from app.services.sheets_service import (
     get_materials,
     get_material_by_id,
     append_matching_history,
+    delete_material,
 )
 from app.services.line_service import send_line_message
 
@@ -67,6 +68,19 @@ def detail(material_id):
     if not material:
         return "指定された材が見つかりません。", 404
     return render_template("materials/detail.html", material=material)
+
+
+@materials_bp.route("/<material_id>/delete", methods=["POST"])
+def delete(material_id):
+    line_user_id = request.form.get("line_user_id", "")
+    if delete_material(material_id):
+        flash("材登録を削除しました。")
+    else:
+        flash("材登録の削除に失敗しました。")
+
+    if line_user_id:
+        return redirect(url_for("users.detail", line_user_id=line_user_id))
+    return redirect(url_for("materials.list_materials"))
 
 
 @materials_bp.route("/interest", methods=["POST"])

@@ -3,6 +3,8 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from app.services.sheets_service import (
     append_user,
     get_user_by_line_user_id,
+    get_materials_by_line_user_id,
+    get_matching_history_by_user,
     update_user,
 )
 
@@ -27,9 +29,7 @@ def submit():
 
     line_user_id = append_user(form)
     flash("ユーザー情報を登録しました。")
-    
-    # ユーザー情報登録後、材登録画面へ
-    return redirect(url_for("materials.register"))
+    return redirect(url_for("users.detail", line_user_id=line_user_id))
 
 
 @users_bp.route("/<line_user_id>", methods=["GET"])
@@ -37,7 +37,16 @@ def detail(line_user_id):
     user = get_user_by_line_user_id(line_user_id)
     if not user:
         return "指定されたユーザーが見つかりません。", 404
-    return render_template("users/detail.html", user=user)
+
+    materials = get_materials_by_line_user_id(line_user_id)
+    matching_history = get_matching_history_by_user(line_user_id)
+
+    return render_template(
+        "users/detail.html",
+        user=user,
+        materials=materials,
+        matching_history=matching_history,
+    )
 
 
 @users_bp.route("/<line_user_id>/edit", methods=["GET"])

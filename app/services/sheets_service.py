@@ -85,6 +85,17 @@ def get_material_by_id(material_id):
     return None
 
 
+def get_materials_by_line_user_id(line_user_id, include_all=False):
+    materials = get_materials(include_all=True)
+    filtered = [
+        material
+        for material in materials
+        if material.get("line_user_id") == line_user_id
+        and (include_all or material.get("status") != "削除済み")
+    ]
+    return filtered
+
+
 def append_matching_history(data):
     sheet = _get_sheet("マッチング履歴")
     match_id = f"match_{uuid4().hex[:10]}"
@@ -101,6 +112,17 @@ def append_matching_history(data):
     ]
     sheet.append_row(row)
     return match_id
+
+
+def get_matching_history_by_user(line_user_id):
+    sheet = _get_sheet("マッチング履歴")
+    records = sheet.get_all_records()
+    return [
+        record
+        for record in records
+        if record.get("provider_user_id") == line_user_id
+        or record.get("requester_user_id") == line_user_id
+    ]
 
 
 def append_user(data):
@@ -208,3 +230,7 @@ def update_material_status(material_id, status):
             return True
 
     return False
+
+
+def delete_material(material_id):
+    return update_material_status(material_id, "削除済み")

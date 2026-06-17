@@ -15,7 +15,43 @@
 
   <div class="button-group">
     <a href="{{ url_for('users.edit', line_user_id=user.line_user_id) }}" class="btn-link">編集する</a>
-    <a href="{{ url_for('materials.list_materials') }}" class="btn-link">材一覧に戻る</a>
+    <a href="{{ url_for('materials.list_materials') }}" class="btn-link">材一覧を見る</a>
   </div>
+</section>
+
+<section class="card">
+  <h3>自分の材登録履歴</h3>
+  {% if materials %}
+    {% for material in materials %}
+      <div class="material-history-item">
+        <p><strong>{{ material.title }}</strong>（{{ material.material_type }}）</p>
+        <p>場所: {{ material.location }} / 状態: {{ material.status }}</p>
+        <p>登録日: {{ material.created_at }}</p>
+        <form method="post" action="{{ url_for('materials.delete', material_id=material.material_id) }}">
+          <input type="hidden" name="line_user_id" value="{{ user.line_user_id }}">
+          <button type="submit">削除する</button>
+        </form>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>まだ材登録がありません。</p>
+  {% endif %}
+</section>
+
+<section class="card">
+  <h3>マッチング履歴</h3>
+  {% if matching_history %}
+    {% for match in matching_history %}
+      <div class="matching-history-item">
+        <p><strong>材ID:</strong> {{ match.material_id }}</p>
+        <p><strong>操作:</strong> {{ match.action }}</p>
+        <p><strong>状態:</strong> {{ match.status }}</p>
+        <p><strong>メッセージ:</strong> {{ match.message }}</p>
+        <p><strong>日時:</strong> {{ match.created_at }}</p>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>まだマッチング履歴はありません。</p>
+  {% endif %}
 </section>
 {% endblock %}
