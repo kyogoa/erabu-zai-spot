@@ -25,9 +25,11 @@
 </section>
 
 <script>
+  window.LIFF_ID = {{ LIFF_ID|tojson }};
+
   async function initMeFlow() {
     const status = document.getElementById('status');
-    if (!window.LIFF_ID || window.LIFF_ID.includes('{{') ) {
+    if (!window.LIFF_ID) {
       status.textContent = 'LIFF が設定されていません。手動で情報を入力してください。';
       return;
     }
