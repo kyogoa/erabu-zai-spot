@@ -27,6 +27,8 @@ async function initializeLiff() {
     await logToServer("Profile retrieved: userId=" + profile.userId + ", displayName=" + profile.displayName);
 
     const lineUserIdInput = document.getElementById("line_user_id");
+    const userIdInput = document.getElementById("user_id");
+    const useridInput = document.getElementById("userid");
     const displayNameInput = document.getElementById("display_name");
 
     console.log("Setting form values...");
@@ -36,6 +38,14 @@ async function initializeLiff() {
     } else {
       console.warn("line_user_id input not found");
       await logToServer("WARNING: line_user_id input not found");
+    }
+
+    if (userIdInput) {
+      userIdInput.value = profile.userId;
+    }
+
+    if (useridInput) {
+      useridInput.value = profile.userId;
     }
 
     if (displayNameInput) {

@@ -15,6 +15,7 @@ def _resolve_user_id(form, route_user_id=""):
     for candidate in (
         form.get("line_user_id"),
         form.get("user_id"),
+        form.get("userid"),
         route_user_id,
     ):
         if candidate and candidate.strip() and candidate.strip().lower() != "me":
@@ -32,8 +33,12 @@ def submit():
     form = request.form.to_dict()
     if not form.get("line_user_id") and form.get("user_id"):
         form["line_user_id"] = form["user_id"]
+    if not form.get("line_user_id") and form.get("userid"):
+        form["line_user_id"] = form["userid"]
     if not form.get("user_id") and form.get("line_user_id"):
         form["user_id"] = form["line_user_id"]
+    if not form.get("userid") and form.get("line_user_id"):
+        form["userid"] = form["line_user_id"]
 
     required_fields = ["display_name", "address", "transport_info"]
     missing = [field for field in required_fields if not form.get(field)]

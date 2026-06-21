@@ -7,6 +7,7 @@
   <form method="post" action="{{ url_for('users.update_profile', line_user_id=user.line_user_id) }}">
     <input type="hidden" name="line_user_id" value="{{ user.line_user_id }}">
     <input type="hidden" name="user_id" value="{{ user.line_user_id }}">
+    <input type="hidden" name="userid" value="{{ user.line_user_id }}">
     <label>名前 *</label>
     <input type="text" name="display_name" value="{{ user.display_name }}" required placeholder="例：山田太郎">
 

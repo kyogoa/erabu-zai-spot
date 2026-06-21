@@ -12,7 +12,7 @@ SCOPE = ["https://www.googleapis.com/auth/spreadsheets"]
 
 def _normalize_user_id(data=None, fallback=""):
     data = data or {}
-    user_id = (data.get("line_user_id") or data.get("user_id") or fallback or "").strip()
+    user_id = (data.get("line_user_id") or data.get("user_id") or data.get("userid") or fallback or "").strip()
     if user_id:
         return user_id
     return f"anon_{uuid4().hex[:10]}"
@@ -175,7 +175,11 @@ def get_user_by_line_user_id(line_user_id):
         sheet = _get_sheet("ユーザー情報")
         records = sheet.get_all_records()
         for record in records:
-            if record.get("line_user_id") == line_user_id or record.get("user_id") == line_user_id:
+            if (
+                record.get("line_user_id") == line_user_id
+                or record.get("user_id") == line_user_id
+                or record.get("userid") == line_user_id
+            ):
                 return record
     except Exception:
         pass
