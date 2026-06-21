@@ -102,6 +102,7 @@ def update_profile(line_user_id):
 
     form["line_user_id"] = resolved_user_id
     form["user_id"] = resolved_user_id
+    form["userid"] = resolved_user_id
 
     required_fields = ["display_name", "address", "transport_info"]
     missing = [field for field in required_fields if not form.get(field)]
@@ -110,11 +111,19 @@ def update_profile(line_user_id):
         flash("必須項目が入力されていません。")
         return redirect(url_for("users.detail", line_user_id=resolved_user_id))
 
+    exists = get_user_by_line_user_id(resolved_user_id) is not None
+    result = update_user(resolved_user_id, form)
+    flash("ユーザー情報を更新しました。" if exists else "ユーザー情報を登録しました。")
+
+    if result:
+        return redirect(url_for("users.detail", line_user_id=resolved_user_id))
+
+    flash("ユーザー情報の保存に失敗しました。")
+    return redirect(url_for("users.detail", line_user_id=resolved_user_id))
+
 
 @users_bp.route("/me", methods=["GET"])
 def me():
-    # Render a page that will obtain LINE profile and then request server-side
-    # whether a record exists; the page will render the form inline.
     return render_template("users/me.html")
 
 
@@ -131,12 +140,33 @@ def me_data():
     else:
         return jsonify({"ok": True, "exists": False})
 
+
+@users_bp.route("/me/save", methods=["POST"])
+def me_save():
+    form = request.form.to_dict()
+    resolved_user_id = _resolve_user_id(form)
+
+    if not resolved_user_id or resolved_user_id.lower() == "me":
+        flash("LINE user ID を取得できませんでした。画面を開き直してください。")
+        return redirect(url_for("users.me"))
+
+    form["line_user_id"] = resolved_user_id
+    form["user_id"] = resolved_user_id
+    form["userid"] = resolved_user_id
+
+    required_fields = ["display_name", "address", "transport_info"]
+    missing = [field for field in required_fields if not form.get(field)]
+
+    if missing:
+        flash("必須項目が入力されていません。")
+        return redirect(url_for("users.me"))
+
+    exists = get_user_by_line_user_id(resolved_user_id) is not None
     result = update_user(resolved_user_id, form)
-    flash_message = "ユーザー情報を更新しました。"
 
     if result:
-        flash(flash_message)
-        return redirect(url_for("users.detail", line_user_id=resolved_user_id))
+        flash("ユーザー情報を更新しました。" if exists else "ユーザー情報を登録しました。")
     else:
         flash("ユーザー情報の保存に失敗しました。")
-        return redirect(url_for("users.detail", line_user_id=resolved_user_id))
+
+    return redirect(url_for("users.me"))

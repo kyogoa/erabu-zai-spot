@@ -49,10 +49,10 @@ async function initializeLiff() {
     }
 
     if (displayNameInput) {
-      if (!displayNameInput.value.trim()) {
+      if (window.FILL_DISPLAY_NAME_FROM_LIFF === true && !displayNameInput.value.trim()) {
         displayNameInput.value = profile.displayName;
         console.log("display_name set to:", profile.displayName);
-      } else {
+      } else if (window.FILL_DISPLAY_NAME_FROM_LIFF === true) {
         console.log("display_name already present, keeping current value:", displayNameInput.value);
       }
     } else {
