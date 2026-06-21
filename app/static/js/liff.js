@@ -39,8 +39,12 @@ async function initializeLiff() {
     }
 
     if (displayNameInput) {
-      displayNameInput.value = profile.displayName;
-      console.log("display_name set to:", profile.displayName);
+      if (!displayNameInput.value.trim()) {
+        displayNameInput.value = profile.displayName;
+        console.log("display_name set to:", profile.displayName);
+      } else {
+        console.log("display_name already present, keeping current value:", displayNameInput.value);
+      }
     } else {
       console.warn("display_name input not found");
       await logToServer("WARNING: display_name input not found");

@@ -11,6 +11,17 @@ from app.services.sheets_service import (
 users_bp = Blueprint("users", __name__, url_prefix="/users")
 
 
+def _resolve_user_id(form, route_user_id=""):
+    for candidate in (
+        form.get("line_user_id"),
+        form.get("user_id"),
+        route_user_id,
+    ):
+        if candidate and candidate.strip() and candidate.strip().lower() != "me":
+            return candidate.strip()
+    return route_user_id.strip()
+
+
 @users_bp.route("/register", methods=["GET"])
 def register():
     return render_template("users/register.html")
@@ -79,18 +90,23 @@ def edit(line_user_id):
 @users_bp.route("/<line_user_id>/update", methods=["POST"])
 def update_profile(line_user_id):
     form = request.form.to_dict()
-    form["line_user_id"] = line_user_id
-    form["user_id"] = line_user_id
+    resolved_user_id = _resolve_user_id(form, line_user_id)
+    if not resolved_user_id or resolved_user_id.lower() == "me":
+        flash("LINE user ID を取得できませんでした。画面を開き直してください。")
+        return redirect(url_for("users.detail", line_user_id=line_user_id))
+
+    form["line_user_id"] = resolved_user_id
+    form["user_id"] = resolved_user_id
 
     required_fields = ["display_name", "address", "transport_info"]
     missing = [field for field in required_fields if not form.get(field)]
 
     if missing:
         flash("必須項目が入力されていません。")
-        return redirect(url_for("users.detail", line_user_id=line_user_id))
+        return redirect(url_for("users.detail", line_user_id=resolved_user_id))
 
-    if get_user_by_line_user_id(line_user_id):
-        result = update_user(line_user_id, form)
+    if get_user_by_line_user_id(resolved_user_id):
+        result = update_user(resolved_user_id, form)
         flash_message = "ユーザー情報を更新しました。"
     else:
         result = append_user(form)
@@ -98,7 +114,7 @@ def update_profile(line_user_id):
 
     if result:
         flash(flash_message)
-        return redirect(url_for("users.detail", line_user_id=line_user_id))
+        return redirect(url_for("users.detail", line_user_id=resolved_user_id))
     else:
         flash("ユーザー情報の保存に失敗しました。")
-        return redirect(url_for("users.detail", line_user_id=line_user_id))
+        return redirect(url_for("users.detail", line_user_id=resolved_user_id))
