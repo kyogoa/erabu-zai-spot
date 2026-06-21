@@ -19,6 +19,10 @@ def register():
 @users_bp.route("/submit", methods=["POST"])
 def submit():
     form = request.form.to_dict()
+    if not form.get("line_user_id") and form.get("user_id"):
+        form["line_user_id"] = form["user_id"]
+    if not form.get("user_id") and form.get("line_user_id"):
+        form["user_id"] = form["line_user_id"]
 
     required_fields = ["display_name", "address", "transport_info"]
     missing = [field for field in required_fields if not form.get(field)]
@@ -76,6 +80,7 @@ def edit(line_user_id):
 def update_profile(line_user_id):
     form = request.form.to_dict()
     form["line_user_id"] = line_user_id
+    form["user_id"] = line_user_id
 
     required_fields = ["display_name", "address", "transport_info"]
     missing = [field for field in required_fields if not form.get(field)]

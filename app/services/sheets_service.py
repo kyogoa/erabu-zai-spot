@@ -10,6 +10,24 @@ import json
 SCOPE = ["https://www.googleapis.com/auth/spreadsheets"]
 
 
+def _normalize_user_id(data=None, fallback=""):
+    data = data or {}
+    user_id = (data.get("line_user_id") or data.get("user_id") or fallback or "").strip()
+    if user_id:
+        return user_id
+    return f"anon_{uuid4().hex[:10]}"
+
+
+def _find_user_row(records, line_user_id):
+    for idx, record in enumerate(records, start=2):
+        if (
+            record.get("line_user_id") == line_user_id
+            or record.get("user_id") == line_user_id
+        ):
+            return idx, record
+    return None, None
+
+
 def _get_client():
     json_text = current_app.config.get("GOOGLE_SERVICE_ACCOUNT_JSON_TEXT")
 
@@ -128,24 +146,17 @@ def get_matching_history_by_user(line_user_id):
 def append_user(data):
     """ユーザー情報を追加。line_user_id が既に存在する場合は更新。"""
     sheet = _get_sheet("ユーザー情報")
-    line_user_id = data.get("line_user_id", "").strip()
-    
-    # line_user_id が空の場合、一意のIDを生成
-    if not line_user_id:
-        line_user_id = f"anon_{uuid4().hex[:10]}"
-    
+    line_user_id = _normalize_user_id(data)
     records = sheet.get_all_records()
-    
-    # 既存ユーザーを検索
-    for idx, record in enumerate(records, start=2):
-        if record.get("line_user_id") == line_user_id:
-            # 更新
-            sheet.update_cell(idx, 2, data.get("display_name", ""))
-            sheet.update_cell(idx, 3, data.get("address", ""))
-            sheet.update_cell(idx, 4, data.get("transport_info", ""))
-            return line_user_id
-    
-    # 新規作成
+
+    idx, record = _find_user_row(records, line_user_id)
+    if idx:
+        sheet.update_cell(idx, 1, line_user_id)
+        sheet.update_cell(idx, 2, data.get("display_name", record.get("display_name", "")))
+        sheet.update_cell(idx, 3, data.get("address", record.get("address", "")))
+        sheet.update_cell(idx, 4, data.get("transport_info", record.get("transport_info", "")))
+        return line_user_id
+
     row = [
         line_user_id,
         data.get("display_name", ""),
@@ -163,10 +174,7 @@ def get_user_by_line_user_id(line_user_id):
         sheet = _get_sheet("ユーザー情報")
         records = sheet.get_all_records()
         for record in records:
-            if (
-                record.get("line_user_id") == line_user_id
-                or record.get("user_id") == line_user_id
-            ):
+            if record.get("line_user_id") == line_user_id or record.get("user_id") == line_user_id:
                 return record
     except Exception:
         pass
@@ -183,13 +191,13 @@ def update_user(line_user_id, data):
     try:
         sheet = _get_sheet("ユーザー情報")
         records = sheet.get_all_records()
-        
-        for idx, record in enumerate(records, start=2):
-            if record.get("line_user_id") == line_user_id:
-                sheet.update_cell(idx, 2, data.get("display_name", ""))
-                sheet.update_cell(idx, 3, data.get("address", ""))
-                sheet.update_cell(idx, 4, data.get("transport_info", ""))
-                return line_user_id
+        idx, record = _find_user_row(records, line_user_id)
+        if idx:
+            sheet.update_cell(idx, 1, line_user_id)
+            sheet.update_cell(idx, 2, data.get("display_name", record.get("display_name", "")))
+            sheet.update_cell(idx, 3, data.get("address", record.get("address", "")))
+            sheet.update_cell(idx, 4, data.get("transport_info", record.get("transport_info", "")))
+            return line_user_id
         return None
     except Exception:
         return None
@@ -198,24 +206,21 @@ def update_user(line_user_id, data):
 def upsert_user(data):
     sheet = _get_sheet("ユーザー情報")
     records = sheet.get_all_records()
-    line_user_id = data.get("line_user_id") or data.get("user_id")
+    line_user_id = _normalize_user_id(data)
 
-    if not line_user_id:
-        return
-
-    for index, record in enumerate(records, start=2):
-        if (
-            record.get("line_user_id") == line_user_id
-            or record.get("user_id") == line_user_id
-        ):
-            sheet.update(f"A{index}:E{index}", [[
+    index, record = _find_user_row(records, line_user_id)
+    if index:
+        sheet.update(
+            f"A{index}:E{index}",
+            [[
                 line_user_id,
                 data.get("display_name", record.get("display_name", "")),
-                record.get("address", ""),
-                record.get("transport_info", ""),
+                data.get("address", record.get("address", "")),
+                data.get("transport_info", record.get("transport_info", "")),
                 _now(),
-            ]])
-            return
+            ]],
+        )
+        return
 
     sheet.append_row([
         line_user_id,
